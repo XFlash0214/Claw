@@ -1,39 +1,47 @@
 #include <Servo.h>
 
-// ── Tune these after physical assembly ──────────────────────────────────────
 const int SERVO_PIN   = 9;
 const int SERVO_PIN_2 = 11;
-const int OPEN_DEG   = 0;   // degrees when claw is fully open
-const int CLOSE_DEG  = 180;  // degrees when claw is fully closed
-// ────────────────────────────────────────────────────────────────────────────
+
+const int CLOSE_9  = 180;
+const int CLOSE_11 = 0;
+const int OPEN_9   = 165;
+const int OPEN_11  = 15;
 
 Servo claw;
 Servo claw2;
 
-// Replace this stub with your chosen control method (potentiometer, serial,
-// Bluetooth, etc.) when you're ready.
-int getCommand() {
-  return OPEN_DEG;  // placeholder: always open
+void printAngles() {
+  Serial.print("Pin 9 angle: ");
+  Serial.print(claw.read());
+  Serial.print(" deg  |  Pin 11 angle: ");
+  Serial.print(claw2.read());
+  Serial.println(" deg");
 }
 
 void setup() {
   claw.attach(SERVO_PIN);
   claw2.attach(SERVO_PIN_2);
+  claw.write(CLOSE_9);
+  claw2.write(CLOSE_11);
   Serial.begin(9600);
-  Serial.println("Claw ready. Pins: " + String(SERVO_PIN) + ", " + String(SERVO_PIN_2));
+  Serial.println("Ready. Type 'o' to open, 'c' to close.");
+  printAngles();
 }
 
 void loop() {
-  // Basic open/close sweep so you can verify wiring immediately.
-  // Comment this block out once electronics are confirmed and replace with
-  // getCommand() logic.
-  Serial.println("Opening...");
-  claw.write(OPEN_DEG);
-  claw2.write(OPEN_DEG);
-  delay(1000);
-
-  Serial.println("Closing...");
-  claw.write(CLOSE_DEG);
-  claw2.write(CLOSE_DEG);
-  delay(1000);
+  if (Serial.available() > 0) {
+    char cmd = Serial.read();
+    if (cmd == 'o') {
+      claw.write(OPEN_9);
+      claw2.write(OPEN_11);
+      Serial.print("Opened  ->  ");
+      printAngles();
+    } else if (cmd == 'c') {
+      claw.write(CLOSE_9);
+      claw2.write(CLOSE_11);
+      Serial.print("Closed  ->  ");
+      printAngles();
+    }
+  }
 }
